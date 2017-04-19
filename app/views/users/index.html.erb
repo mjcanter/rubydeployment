@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <header>
+        <% if flash[:errors] %>
+            <% flash[:errors].each do |e| %>
+            <p id="error"><%= e %></p>  
+            <% end %>
+        <% end %>
+        <div id="header_container">
+                <h2>Hello, <%= @user.name %></h2>
+                <a href="/logout" class='btn btn-default'>Logout</a>
+                <a href="/secrets" class='btn btn-default'>All Secrets</a>
+        </div><!-- /#header_container  -->
+    </header>
+    <body>
+        <div class="post_content">
+            <h3>New Secret</h3>
+            <form action="/secrets/new" method="POST">
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                <input type="text" class="form-control" id="secrets" name="secrets[content]" value="">
+                <input type="hidden" id="secrets" name="secrets[user_id]" value="<%=@user.id%>">
+                <input type="submit" value="Post content" class="content_submit">
+            </form>
+        </div>
+        <div>
+            <div class='row col-md-1' style='display:inline-block; width: 500px; margin: 0; vertical-align: top'>
+                <h3>Secrets</h3>
+                <% @secrets.each do |post| %>                
+                    <p class="message_content"><%= post.content %>, likes:<%= post.likes.count %></p>
+                    <form action="secrets/<%= post['id']%>/delete" method="POST" style='display:inline-block; width: 60px'>
+                        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                        <input type='hidden' name="_method" value="delete">
+                        <input type="submit" value="delete">
+                    </form>
+                    <form action="users/<%= post['id']%>/like/<%= @user.id%>" method="POST">
+                        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                        <input type="hidden" name="likes[secret_id]" id="likes" value="<%=post.id%>">
+                        <input type="hidden" name="likes[user_id]" id="likes" value="<%=@user.id%>">
+                        <input type="submit" value="like">
+                    </form>    
+                <% end %>
+            </div>
+            <div class='row col-md-1' style='display:inline-block; width: 500px; margin: 0; vertical-align: top'>
+                <h3>Secrets Liked</h3>
+                <% @secrets.each do |post| %>
+            
+                    <% if post.users.include?(@user) %>
+                        <p class="message_content"><%= post.content %>, likes:<%= post.likes.count %></p>
+                        <form action="users/<%= post['id']%>/unlike/<%= @user.id%>" method="POST">
+                            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                            <input type="hidden" name="likes[secret_id]" id="likes" value="<%=post.id%>">
+                            <input type="hidden" name="likes[user_id]" id="likes" value="<%=@user.id%>">
+                            <input type="submit" value="unlike">
+                        </form>
+                    <% end %>
+                <% end %>
+            </div>
+        </div>
+    </body>
+
+</html>
